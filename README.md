@@ -17,7 +17,7 @@ kundendaten. echte werte werden durch platzhalter ersetzt (`<DOMAIN>`, `<KUNDE>`
 ## index
 
 ### guides
-_noch keine einträge_
+- [website bei hosttech hosten & deployen](guides/hosttech-deployment.md) — domain, plesk-subscription, git-pull, ssl
 
 ### rules
 _noch keine einträge_
