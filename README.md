@@ -18,6 +18,7 @@ kundendaten. echte werte werden durch platzhalter ersetzt (`<DOMAIN>`, `<KUNDE>`
 
 ### guides
 - [website bei hosttech hosten & deployen](guides/hosttech-deployment.md) — domain, plesk-subscription, git-pull, ssl
+- [interne app auf dem gemeinsamen server anlegen](guides/interne-app-auf-shared-server.md) — port, systemd, caddy-portal, mac-client, deploy
 
 ### rules
 _noch keine einträge_
