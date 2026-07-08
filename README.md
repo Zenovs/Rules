@@ -30,6 +30,8 @@ anleitungen für wiederkehrende aufgaben. **vorgehen:**
 ### rules (vollständige raw-urls)
 - **projekt-snippet: rules-repo in ein projekt einbinden** — kopiervorlage für die projekt-CLAUDE.md
   https://raw.githubusercontent.com/Zenovs/Rules/main/rules/projekt-snippet.md
+- **CMS-inhalte vom git-deploy trennen** — data-dateien nicht ins repo, sonst überschreibt der pull die online-inhalte
+  https://raw.githubusercontent.com/Zenovs/Rules/main/rules/cms-inhalte-vom-deploy-trennen.md
 
 ---
 
@@ -47,6 +49,7 @@ anleitungen für wiederkehrende aufgaben. **vorgehen:**
 
 ### rules
 - [projekt-snippet: rules-repo in ein projekt einbinden](rules/projekt-snippet.md) — kopiervorlage für die projekt-CLAUDE.md
+- [CMS-inhalte vom git-deploy trennen](rules/cms-inhalte-vom-deploy-trennen.md) — data-dateien nicht ins repo, sonst überschreibt der pull die online-inhalte
 
 ## wie verweise ich aus anderen projekten darauf
 

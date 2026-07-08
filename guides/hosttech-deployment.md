@@ -32,6 +32,13 @@ code liegt auf github und wird über plesk deployt.
   nur die fertigen dateien. reine statische/php-seiten sind unproblematisch.
 - **pull nicht vergessen.** ein push auf github deployt nichts von selbst — der
   "Pull"-button in plesk muss manuell geklickt werden.
+- **CMS-inhalte werden vom pull überschrieben.** wenn die seite ein CMS hat und
+  der kunde inhalte online in dateien schreibt (z.b. `data/*.json`), die auch im
+  repo liegen, setzt jeder pull den server-stand hart auf den repo-stand → alle
+  online gemachten änderungen sind weg. daten-dateien deshalb **von anfang an**
+  aus dem git-tracking nehmen — siehe
+  [CMS-inhalte vom git-deploy trennen](../rules/cms-inhalte-vom-deploy-trennen.md).
 
 ## referenzen
 - siehe `TEMPLATE.md` für den aufbau dieser anleitung
+- [CMS-inhalte vom git-deploy trennen](../rules/cms-inhalte-vom-deploy-trennen.md) — daten-dateien nicht ins repo
