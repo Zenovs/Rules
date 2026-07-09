@@ -26,6 +26,8 @@ anleitungen für wiederkehrende aufgaben. **vorgehen:**
   https://raw.githubusercontent.com/Zenovs/Rules/main/guides/hosttech-deployment.md
 - **interne app auf dem gemeinsamen server anlegen** — port, systemd, caddy-portal, mac-client, deploy
   https://raw.githubusercontent.com/Zenovs/Rules/main/guides/interne-app-auf-shared-server.md
+- **CMS + Visueller Editor für statische Websites** — cms, visual-editor, inline-editor, data-bind, seed-fallback, cache-busting, plesk, mjml
+  https://raw.githubusercontent.com/Zenovs/Rules/main/guides/cms-visual-editor.md
 
 ### rules (vollständige raw-urls)
 - **projekt-snippet: rules-repo in ein projekt einbinden** — kopiervorlage für die projekt-CLAUDE.md
@@ -46,6 +48,7 @@ anleitungen für wiederkehrende aufgaben. **vorgehen:**
 ### guides
 - [website bei hosttech hosten & deployen](guides/hosttech-deployment.md) — domain, plesk-subscription, git-pull, ssl
 - [interne app auf dem gemeinsamen server anlegen](guides/interne-app-auf-shared-server.md) — port, systemd, caddy-portal, mac-client, deploy
+- [CMS + Visueller Editor für statische Websites](guides/cms-visual-editor.md)
 
 ### rules
 - [projekt-snippet: rules-repo in ein projekt einbinden](rules/projekt-snippet.md) — kopiervorlage für die projekt-CLAUDE.md
