@@ -10,7 +10,7 @@
 
 1. **Statische Site** mit mehreren Seiten, gemeinsame Bausteine (Nav/Footer/Formular/Kontakt) als **Partials**.
 2. **CMS unter `/admin`**: Login, Dashboard, Einstellungen, je Inhaltsseite ein schema-getriebener Editor. Alle Texte/Bilder editierbar.
-3. **Visueller Editor** auf der echten Website (`?edit`): Klick-to-edit für Texte, Klick auf ein Bild → Hochladen ODER Auswahl aus einer Mediathek, Werkzeugleiste mit **Seiten-Dropdown** und **Speichern**.
+3. **Visueller Editor** auf der echten Website (`?edit`): Klick-to-edit für Texte, Klick auf jedes Inhaltsbild → Hochladen oder Auswahl aus der Mediathek; auch Bilder ohne `data-bind` sind editierbar (generischer Override-Speicher), Werkzeugleiste mit **Seiten-Dropdown** und **Speichern**.
 4. **Zwei API-Backends**: PHP (Produktion/Plesk) **und** Node/Express (lokal) lesen/schreiben dieselben JSON-Dateien.
 5. **Selbstheilung**: fehlt eine Datendatei, greift ein **Seed-Fallback**.
 6. **Cache-Busting** von Anfang an (öffentliche **und** Admin-Assets) + `.htaccess`.
@@ -32,6 +32,7 @@
 │   └─ js/  cms-loader.js nav.js  <seite>.js  inline-editor.js  form.js …
 ├─ data/                          # CMS-Inhalte (JSON) – im Build getrackt
 │   ├─ site.json home.json …      # je Bereich eine Datei
+│   ├─ images.json                # generische Bild-Overrides (Bilder ohne data-bind), Start-Inhalt {}
 │   └─ _seed/*.json               # 1:1-Kopie als Fallback/Auslieferungsstand
 ├─ admin/
 │   ├─ index.html                 # Login
@@ -78,6 +79,7 @@ Für `<img>`: `data-bind` setzt `src`. Für Sammlungen: HTML enthält einen leer
 - `bindContent()` – alle `[data-bind]` aus der jeweiligen Datei.
 - `renderDynamic()` – verteilt auf `renderNews/Faq/Team/History/Steps/Offers…` (per `data-render`).
 - `applyBinding/setBoundValue` – setzt `textContent` bzw. `img.src`.
+- `applyImageOverrides()` – wendet in `data/images.json` gespeicherte Bild-Overrides an. Für jedes `#main img` ohne `data-bind`/`data-site` (und nicht in `.hero__bg` oder `[data-render]`): Schlüssel = `"<location.pathname>|<original-src>"`, stempelt `img.dataset.imgkey` und setzt bei Treffer `img.src`. In `nav.js` nach `bindContent()` aufrufen.
 
 ### `assets/js/nav.js`
 Orchestriert beim `DOMContentLoaded`:
@@ -93,7 +95,7 @@ document.dispatchEvent(new Event('partials:loaded'));   // Formulare in Partials
 - `authed()` → `fetch('/api/auth/check')`; ohne Login Hinweis + Weiterleitung zu `/admin/`.
 - Editierbar = `[data-bind], [data-site]`; `<a>` **ohne** `data-href` überspringen (Buttons/URLs nicht als Text editieren).
 - Texte → `contenteditable` + Speicherung `on blur`.
-- Bilder → Klick öffnet einen Mediathek-Dialog (`.ie-media`): entweder „Bild hochladen" (Upload via `POST /api/upload`) oder ein Raster vorhandener Bilder (`GET /api/media`) zum Auswählen. Auswahl/Upload setzt `img.src` + merkt die Änderung. Schliessen per ✕ / Klick daneben / Esc.
+- Bilder: alle Inhaltsbilder werden editierbar – gebundene (`data-bind`/`data-site`) über die CMS-Datei, alle übrigen `#main`-Bilder über den generischen Speicher `data/images.json` (Schlüssel `img.dataset.imgkey`). Ausgenommen: `[data-render]`-Sammlungen und `.hero__bg`. Klick öffnet den Mediathek-Dialog (Hochladen oder Auswahl). Hover-Affordance: Bild wird abgedunkelt (`filter: brightness`), rotes Outline, plus ein schwebendes Badge „✎ Bild ändern" (fixes Element mit `pointer-events:none`, per `mouseenter` über dem Bild positioniert). Speichern von `images.json` erfolgt mit flachen Composite-Keys (kein Dot-Split).
 - **Werkzeugleiste** (`.ie-bar`, fixiert unten): Label · **Seiten-Dropdown** (Navigation im Edit-Modus) · Änderungszähler · „Beenden" · „Speichern".
 - `preserveEditLinks()` – hängt `?edit` an **interne** Links (gleicher Origin, kein `target=_blank`, keine reinen Anker), damit man im Edit-Modus navigieren kann.
 - `saveAll()` – pro geänderte Datei: `load → setPath je Änderung → POST /api/data/:file`.
@@ -105,6 +107,7 @@ document.dispatchEvent(new Event('partials:loaded'));   // Formulare in Partials
 - `POST /api/upload` – nur mit Auth, speichert Bild, gibt Pfad zurück.
 - `GET /api/media` – öffentlich, listet rekursiv alle Bilder unter `assets/img/` (Uploads zuerst, dann neueste), Rückgabe `{ ok:true, images:[pfad,…] }`. In beiden Backends. Uploads landen in `assets/img/uploads/`.
 - `GET /api/auth/check` – `{authenticated:true|false}`; Login/Logout per Session-Cookie.
+- `images` gehört in die Whitelist beider Backends; `data/images.json` + `_seed` starten als `{}`.
 
 ---
 
@@ -204,6 +207,7 @@ Ohne das erscheinen Änderungen nach dem Deploy **nicht** (Browser liefert alte 
 - [ ] Admin-Navigation: Dashboard + Einstellungen fix, restliche Seiten im **Dropdown** (keine überlaufende Leiste). `Admin.NAV` bleibt Gesamtliste fürs Dashboard.
 - [ ] Visueller Editor: Toolbar mit **Seiten-Dropdown**; interne Links behalten `?edit`; `<a>` ohne `data-href` werden nicht als Text editierbar; externe/`target=_blank`/Anker ausgenommen.
 - [ ] Endpoint `GET /api/media` vorhanden (PHP und Node); Klick auf ein Bild im Editor öffnet die Mediathek (Hochladen und Auswahl vorhandener Bilder); neue Uploads erscheinen darin.
+- [ ] Alle Inhaltsbilder im Editor klickbar (auch ohne `data-bind`); Override-Speicher `data/images.json` (+ `_seed` `{}`, Whitelist PHP+Node); `applyImageOverrides()` in `nav.js` nach `bindContent()`; Hover zeigt Abdunkeln + „✎ Bild ändern"-Badge. Gerenderte Sammlungen (`[data-render]`) und `.hero__bg` bewusst ausgenommen (dort via CMS-Admin bzw. eigene JSON).
 - [ ] Partials/JSON laden mit `cache:'no-cache'`.
 - [ ] Verifikation im Headless-Chrome: **JS-eingefügte Bilder** rendern in Screenshots kaputt/grau → über **Computed-Styles/DOM** (DevTools-Protokoll) prüfen, nicht nur per Bild.
 - [ ] Nach Deploy einmal harter Reload / privater Tab (alte HTML kann noch alte Asset-Links cachen).
