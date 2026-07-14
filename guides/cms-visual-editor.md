@@ -10,7 +10,7 @@
 
 1. **Statische Site** mit mehreren Seiten, gemeinsame Bausteine (Nav/Footer/Formular/Kontakt) als **Partials**.
 2. **CMS unter `/admin`**: Login, Dashboard, Einstellungen, je Inhaltsseite ein schema-getriebener Editor. Alle Texte/Bilder editierbar.
-3. **Visueller Editor** auf der echten Website (`?edit`): Klick-to-edit für Texte, Klick-to-upload für Bilder, Werkzeugleiste mit **Seiten-Dropdown** und **Speichern**.
+3. **Visueller Editor** auf der echten Website (`?edit`): Klick-to-edit für Texte, Klick auf ein Bild → Hochladen ODER Auswahl aus einer Mediathek, Werkzeugleiste mit **Seiten-Dropdown** und **Speichern**.
 4. **Zwei API-Backends**: PHP (Produktion/Plesk) **und** Node/Express (lokal) lesen/schreiben dieselben JSON-Dateien.
 5. **Selbstheilung**: fehlt eine Datendatei, greift ein **Seed-Fallback**.
 6. **Cache-Busting** von Anfang an (öffentliche **und** Admin-Assets) + `.htaccess`.
@@ -92,7 +92,8 @@ document.dispatchEvent(new Event('partials:loaded'));   // Formulare in Partials
 ### `assets/js/inline-editor.js` (exportiert `window.InlineEditor = { init }`)
 - `authed()` → `fetch('/api/auth/check')`; ohne Login Hinweis + Weiterleitung zu `/admin/`.
 - Editierbar = `[data-bind], [data-site]`; `<a>` **ohne** `data-href` überspringen (Buttons/URLs nicht als Text editieren).
-- Texte → `contenteditable` + Speicherung `on blur`; Bilder → Klick öffnet Datei-Dialog → Upload → `img.src` + Änderung merken.
+- Texte → `contenteditable` + Speicherung `on blur`.
+- Bilder → Klick öffnet einen Mediathek-Dialog (`.ie-media`): entweder „Bild hochladen" (Upload via `POST /api/upload`) oder ein Raster vorhandener Bilder (`GET /api/media`) zum Auswählen. Auswahl/Upload setzt `img.src` + merkt die Änderung. Schliessen per ✕ / Klick daneben / Esc.
 - **Werkzeugleiste** (`.ie-bar`, fixiert unten): Label · **Seiten-Dropdown** (Navigation im Edit-Modus) · Änderungszähler · „Beenden" · „Speichern".
 - `preserveEditLinks()` – hängt `?edit` an **interne** Links (gleicher Origin, kein `target=_blank`, keine reinen Anker), damit man im Edit-Modus navigieren kann.
 - `saveAll()` – pro geänderte Datei: `load → setPath je Änderung → POST /api/data/:file`.
@@ -102,6 +103,7 @@ document.dispatchEvent(new Event('partials:loaded'));   // Formulare in Partials
 - `GET /api/data/:file` – **öffentlich**, liefert `data/<file>.json`, **Fallback** auf `data/_seed/<file>.json`.
 - `POST /api/data/:file` – **nur mit Auth** (Session), schreibt JSON.
 - `POST /api/upload` – nur mit Auth, speichert Bild, gibt Pfad zurück.
+- `GET /api/media` – öffentlich, listet rekursiv alle Bilder unter `assets/img/` (Uploads zuerst, dann neueste), Rückgabe `{ ok:true, images:[pfad,…] }`. In beiden Backends. Uploads landen in `assets/img/uploads/`.
 - `GET /api/auth/check` – `{authenticated:true|false}`; Login/Logout per Session-Cookie.
 
 ---
@@ -201,6 +203,7 @@ Ohne das erscheinen Änderungen nach dem Deploy **nicht** (Browser liefert alte 
 - [ ] Viewport-Meta auf jeder Seite; Mobile-Änderungen nur in `@media` (Desktop unverändert).
 - [ ] Admin-Navigation: Dashboard + Einstellungen fix, restliche Seiten im **Dropdown** (keine überlaufende Leiste). `Admin.NAV` bleibt Gesamtliste fürs Dashboard.
 - [ ] Visueller Editor: Toolbar mit **Seiten-Dropdown**; interne Links behalten `?edit`; `<a>` ohne `data-href` werden nicht als Text editierbar; externe/`target=_blank`/Anker ausgenommen.
+- [ ] Endpoint `GET /api/media` vorhanden (PHP und Node); Klick auf ein Bild im Editor öffnet die Mediathek (Hochladen und Auswahl vorhandener Bilder); neue Uploads erscheinen darin.
 - [ ] Partials/JSON laden mit `cache:'no-cache'`.
 - [ ] Verifikation im Headless-Chrome: **JS-eingefügte Bilder** rendern in Screenshots kaputt/grau → über **Computed-Styles/DOM** (DevTools-Protokoll) prüfen, nicht nur per Bild.
 - [ ] Nach Deploy einmal harter Reload / privater Tab (alte HTML kann noch alte Asset-Links cachen).
